@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RetrofitFileUpload</string>
+
+    <string name="action_upload">Upload Selected</string>
+
+    <string name="description_img">Image</string>
+</resources>
