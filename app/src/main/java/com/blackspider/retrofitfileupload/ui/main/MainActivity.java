@@ -15,9 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.blackspider.retrofitfileupload.R;
@@ -52,14 +52,12 @@ public class MainActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(hasStorageReadPermission()) chooseFile();
-                else requestStorageReadPermission();
-            }
+        fab.setOnClickListener(view -> {
+            if(hasStorageReadPermission()) chooseFile();
+            else requestStorageReadPermission();
         });
 
+        //initialize recycler view
         RecyclerView recyclerView = findViewById(R.id.rv_files);
         adapter = new FilesAdapter();
         recyclerView.setAdapter(adapter);
@@ -96,10 +94,14 @@ public class MainActivity extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Get the selected files
+     * */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == CHOOSE_FILE_CODE){
-            if(resultCode == RESULT_OK && data != null && data.getData() != null){
+            if(resultCode == RESULT_OK && data != null && data.getData() != null) {
+                Log.e("onActivityResult", data.getData().toString());
                 filesUri.add(data.getData());
 
                 showMessage(filesUri.size() + " files selected!");
@@ -111,6 +113,9 @@ public class MainActivity extends AppCompatActivity{
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    /**
+     * Check if user is granted storage access permission. If yes, read the files
+     * */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -126,22 +131,34 @@ public class MainActivity extends AppCompatActivity{
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    /**
+     * Check storage permission is granted or not
+     * */
     private boolean hasStorageReadPermission(){
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Request storage permission
+     * */
     private void requestStorageReadPermission(){
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                 STORAGE_READ_PERMISSION_CODE);
     }
 
+    /**
+     * Choose file from the device storage
+     * */
     private void chooseFile(){
         Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, CHOOSE_FILE_CODE);
     }
 
+    /**
+     * Upload single file to the server
+     * */
     private void uploadFile(@NonNull final Uri fileUri, String desc) {
 
         String realPath = Util.getRealPathFromURI(this , fileUri);
@@ -174,6 +191,9 @@ public class MainActivity extends AppCompatActivity{
                 });
     }
 
+    /**
+     * Upload multiple files to the server
+     * */
     private void uploadMultipleFiles(List<Uri> fileUri){
         List<FileEntity> fileEntities = new ArrayList<>();
 
@@ -206,7 +226,10 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    private void getFiles(){
+    /**
+     * Get files from the server
+     * */
+    private void getFiles() {
         RemoteUtil.on().getFileList(new FileListCallback() {
             @Override
             public void onResponse(String error, List<RemoteFileEntity> files) {

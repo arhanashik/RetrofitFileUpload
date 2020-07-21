@@ -37,13 +37,20 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RemoteUtil {
+    //base url of the server
     private final String BASE_URL = "http://192.168.2.209/FileUploadApi/";
 
     private static RemoteUtil remoteUtil;
+    //api client for the server api
     private ApiClient apiClient;
+    //retrofit instance
     private Retrofit retrofit;
 
-    private RemoteUtil(){
+    /**
+     * initialize the retrofit instance and api client.
+     * For making the class singleton make the primary construction private.
+     * */
+    private RemoteUtil() {
         if(retrofit == null){
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -60,14 +67,20 @@ public class RemoteUtil {
         }
     }
 
+    /**
+     * Provide the singleton instance of the class
+     * */
     public static RemoteUtil on(){
         if(remoteUtil == null) remoteUtil = new RemoteUtil();
 
         return remoteUtil;
     }
 
+    /**
+     * Upload a given file the the server
+     * */
     public void uploadFile(File file, MediaType mediaType, String desc,
-                           final FileUploadCallback callback){
+                           final FileUploadCallback callback) {
 
         RequestBody requestFile = RequestBody.create(mediaType, file);
         RequestBody descBody = RequestBody.create(MediaType.parse("text/plain"), desc);
@@ -104,6 +117,9 @@ public class RemoteUtil {
         });
     }
 
+    /**
+     * Upload multiple file
+     * */
     public void uploadMultipleFiles(List<FileEntity> fileEntities,
                                     final MultipleFileUploadCallback callback){
 
@@ -155,7 +171,10 @@ public class RemoteUtil {
         });
     }
 
-    public void getFileList(final FileListCallback callback){
+    /**
+     * Get file names from the server
+     * */
+    public void getFileList(final FileListCallback callback) {
         Call<RemoteFileListResponse> call = apiClient.getFiles();
 
         call.enqueue(new Callback<RemoteFileListResponse>() {

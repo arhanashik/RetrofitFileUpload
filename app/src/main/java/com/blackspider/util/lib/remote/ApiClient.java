@@ -34,6 +34,7 @@ public interface ApiClient {
     @POST("Api.php?call=multiple_upload")
     Call<MultipleFileUploadResponse> uploadMultipleFiles(@Part List<MultipartBody.Part> files);
 
+    //get the file names from the server
     @GET("Api.php?call=getFiles")
     Call<RemoteFileListResponse> getFiles();
 }
